@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "787349299655",
+    "project_id": "heart-connect-e2d17",
+    "storage_bucket": "heart-connect-e2d17.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:787349299655:android:b909db20d254a21c2bf9e2",
+        "android_client_info": {
+          "package_name": "com.example.heart_connect_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2SXJH-8-2kfb7TbjIQEc68qo0sxLI8TI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
