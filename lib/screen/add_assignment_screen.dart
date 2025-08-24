@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/assignment.dart';
 
 class AddAssignmentScreen extends StatefulWidget {
   final Assignment? assignment; // For editing existing assignments

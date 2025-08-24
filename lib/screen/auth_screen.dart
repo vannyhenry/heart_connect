@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:heart_connect_app/widgets/custom_modal.dart';
-import 'package:heart_connect_app/widgets/custom_modal_config.dart';
-import 'package:heart_connect_app/screen/auth_screen.dart';
-
+import 'package:heart_connect_app/database/firebase/user_service.dart';
+import 'package:heart_connect_app/screen/add_assignment_screen.dart';
+import 'package:heart_connect_app/widgets/misc.dart';
 
 class AuthScreen extends StatefulWidget {
   final FirebaseAuth auth;
@@ -17,8 +16,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isRegister = false; // Toggles between login and registration mode
-  bool _isLoading = false; // Indicates if an authentication operation is in progress
-  CustomModalConfig _modal = CustomModalConfig(); // Manages modal visibility and content
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,46 +29,40 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _handleSubmit() async {
     setState(() {
       _isLoading = true;
-      _modal = CustomModalConfig(); // Hide any previously shown modals
     });
 
     try {
       if (_isRegister) {
         // Register new user with email and password
-        await widget.auth.createUserWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
+        final check = await UserService().createUser(
+          _emailController.text,
+          _passwordController.text,
         );
-        setState(() {
-          _modal = CustomModalConfig(
-            show: true,
-            title: 'Success!',
-            message: 'Registration successful! You can now log in.',
-            type: 'info',
-            onConfirm: () => setState(() => _modal = CustomModalConfig()), // Hide modal on OK
+        if (check) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AddAssignmentScreen()),
           );
-        });
+        }
       } else {
         // Sign in existing user with email and password
-        await widget.auth.signInWithEmailAndPassword(
+        final check = await UserService().signInUser(
           email: _emailController.text,
           password: _passwordController.text,
         );
+        if (check) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AddAssignmentScreen()),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       // Handle Firebase authentication errors
-      setState(() {
-        _modal = CustomModalConfig(
-          show: true,
-          title: 'Authentication Error',
-          message: e.message ?? 'An unknown error occurred. Please try again.',
-          type: 'error',
-          onConfirm: () => setState(() => _modal = CustomModalConfig()), // Hide modal on OK
-        );
-      });
+      displaySnackBar(context, "An error occured");
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading regardless of success or failure
+        _isLoading = false;
       });
     }
   }
@@ -80,17 +72,20 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFFE0F7FA), Color(0xFFEDE7F6)], // Light blue to light purple
+                colors: [
+                  Color(0xFFE0F7FA),
+                  Color(0xFFEDE7F6),
+                ], // Light blue to light purple
               ),
             ),
             child: Center(
-              child: SingleChildScrollView( // Allows content to scroll on smaller screens
+              child: SingleChildScrollView(
+                // Allows content to scroll on smaller screens
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -104,11 +99,15 @@ class _AuthScreenState extends State<AuthScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16.0),
                       border: const Border(
-                        top: BorderSide(color: Colors.deepPurple, width: 8), // Top border for styling
+                        top: BorderSide(
+                          color: Colors.deepPurple,
+                          width: 8,
+                        ), // Top border for styling
                       ),
                     ),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min, // Column takes minimum space needed
+                      mainAxisSize:
+                          MainAxisSize.min, // Column takes minimum space needed
                       children: [
                         Text(
                           _isRegister ? 'Register' : 'Login',
@@ -148,7 +147,10 @@ class _AuthScreenState extends State<AuthScreen> {
                         SizedBox(
                           width: double.infinity, // Button takes full width
                           child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleSubmit, // Disable button while loading
+                            onPressed:
+                                _isLoading
+                                    ? null
+                                    : _handleSubmit, // Disable button while loading
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
                               foregroundColor: Colors.white,
@@ -158,22 +160,30 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                               elevation: 5,
                             ),
-                            child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  )
-                                : Text(
-                                    _isRegister ? 'Register' : 'Login',
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
+                            child:
+                                _isLoading
+                                    ? const CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    )
+                                    : Text(
+                                      _isRegister ? 'Register' : 'Login',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                           ),
                         ),
                         const SizedBox(height: 24),
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              _isRegister = !_isRegister; // Toggle registration/login mode
-                              _emailController.clear(); // Clear fields on toggle
+                              _isRegister =
+                                  !_isRegister; // Toggle registration/login mode
+                              _emailController
+                                  .clear(); // Clear fields on toggle
                               _passwordController.clear();
                             });
                           },
@@ -190,13 +200,6 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ),
-          ),
-          CustomModal(
-            show: _modal.show,
-            title: _modal.title,
-            message: _modal.message,
-            onConfirm: _modal.onConfirm,
-            type: _modal.type,
           ),
         ],
       ),
