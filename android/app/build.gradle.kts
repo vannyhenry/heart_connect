@@ -11,7 +11,8 @@ plugins {
 android {
     namespace = "com.example.heart_connect_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "29.0.13846066"
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -26,13 +27,14 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.heart_connect_app"
         // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.  
         minSdk = flutter.minSdkVersion
-        minSdk = 23
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-    }
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0.0"
+}
+
+    
 
     buildTypes {
         release {
