@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // All assignment docs: users/{userId}/assignments/{docId}
+    match /users/{userId}/assignments/{docId} {
+
+      // READ (get + list) – only the owner
+      allow read: if isSignedIn() && isOwner(userId);
+
+      // CREATE – only owner; data must be valid; timestamps set to server time
+      allow create: if isSignedIn()
+                    && isOwner(userId)
+                    && isValidNewAssignment();
+
+      // UPDATE – only owner; ownerId cannot change; data must be valid
+      allow update: if isSignedIn()
+                    && isOwner(userId)
+                    && request.resource.data.ownerId == resource.data.ownerId
+                    && isValidUpdatedAssignment();
+
+      // DELETE – only owner
+      allow delete: if isSignedIn() && isOwner(userId);
+    }
+
+    // -------- Helpers --------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Validate fields on CREATE
+    function isValidNewAssignment() {
+      return
+        request.resource.data.keys().hasOnly([
+          'title', 'description', 'dueDate', 'isCompleted',
+          'ownerId', 'createdAt', 'updatedAt'
+        ]) &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.description is string &&
+        request.resource.data.isCompleted is bool &&
+        request.resource.data.ownerId == request.auth.uid &&
+        request.resource.data.dueDate is timestamp &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+    }
+
+    // Validate fields on UPDATE (only some fields may change)
+    function isValidUpdatedAssignment() {
+      return
+        // Only these keys may change on update
+        request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'title', 'description', 'dueDate', 'isCompleted', 'updatedAt'
+        ]) &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.description is string &&
+        request.resource.data.isCompleted is bool &&
+        request.resource.data.dueDate is timestamp &&
+        request.resource.data.updatedAt == request.time;
+    }
+  }
+}
