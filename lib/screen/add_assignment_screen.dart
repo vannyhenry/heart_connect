@@ -1,12 +1,10 @@
-// lib/screens/add_assignment_screen.dart
-// YOUR PART - Add Assignment Page with Edit/Delete functionality
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:heart_connect_app/models/assignment.dart';
 
 class AddAssignmentScreen extends StatefulWidget {
-  final Assignment? assignment; // For editing existing assignments
+  final AssignmentModal? assignment; // For editing existing assignments
 
   const AddAssignmentScreen({Key? key, this.assignment}) : super(key: key);
 
@@ -19,7 +17,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
   final _titleController = TextEditingController();
   final _subjectController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   DateTime _selectedDate = DateTime.now().add(Duration(days: 1));
   String _priority = 'medium';
   String _status = 'pending';
@@ -69,7 +67,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
               .collection('assignments')
               .doc(widget.assignment!.id)
               .update(assignmentData);
-          
+
           _showSnackBar('Assignment updated successfully!', Colors.green);
         } else {
           // CREATE new assignment
@@ -77,11 +75,10 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
           await FirebaseFirestore.instance
               .collection('assignments')
               .add(assignmentData);
-          
+
           _showSnackBar('Assignment added successfully!', Colors.green);
           _clearForm(); // Clear form after adding
         }
-
       } catch (e) {
         _showSnackBar('Error: ${e.toString()}', Colors.red);
       } finally {
@@ -104,10 +101,9 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
           .collection('assignments')
           .doc(widget.assignment!.id)
           .delete();
-      
+
       _showSnackBar('Assignment deleted successfully!', Colors.green);
       Navigator.pop(context); // Go back after deletion
-      
     } catch (e) {
       _showSnackBar('Error deleting assignment: ${e.toString()}', Colors.red);
     } finally {
@@ -185,30 +181,41 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
 
   Future<bool> _showDeleteConfirmation() async {
     return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Row(
-          children: [
-            Icon(Icons.warning, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Delete Assignment'),
-          ],
-        ),
-        content: Text('Are you sure you want to delete "${widget.assignment!.title}"? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    ) ?? false;
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                title: Row(
+                  children: [
+                    Icon(Icons.warning, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Delete Assignment'),
+                  ],
+                ),
+                content: Text(
+                  'Are you sure you want to delete "${widget.assignment!.title}"? This action cannot be undone.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: Text(
+                      'Delete',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
   }
 
   String _formatDateTime(DateTime dateTime) {
@@ -217,10 +224,14 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
 
   Color _getPriorityColor(String priority) {
     switch (priority) {
-      case 'high': return Colors.red;
-      case 'medium': return Colors.orange;
-      case 'low': return Colors.green;
-      default: return Colors.grey;
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      case 'low':
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -266,7 +277,9 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                 if (isEditing)
                   Card(
                     elevation: 4,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(16),
@@ -302,13 +315,15 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                       ),
                     ),
                   ),
-                
+
                 SizedBox(height: 16),
 
                 // Basic Information Card
                 Card(
                   elevation: 6,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
@@ -323,20 +338,26 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        
+
                         // Title Field
                         TextFormField(
                           controller: _titleController,
                           decoration: InputDecoration(
                             labelText: 'Assignment Title *',
                             hintText: 'e.g., Math Homework Chapter 5',
-                            prefixIcon: Icon(Icons.assignment, color: Color(0xFF4F63FE)),
+                            prefixIcon: Icon(
+                              Icons.assignment,
+                              color: Color(0xFF4F63FE),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Color(0xFF4F63FE), width: 2),
+                              borderSide: BorderSide(
+                                color: Color(0xFF4F63FE),
+                                width: 2,
+                              ),
                             ),
                           ),
                           validator: (value) {
@@ -349,22 +370,28 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                             return null;
                           },
                         ),
-                        
+
                         SizedBox(height: 16),
-                        
+
                         // Subject Field
                         TextFormField(
                           controller: _subjectController,
                           decoration: InputDecoration(
                             labelText: 'Subject/Course *',
                             hintText: 'e.g., Mathematics, English, Science',
-                            prefixIcon: Icon(Icons.school, color: Color(0xFF4F63FE)),
+                            prefixIcon: Icon(
+                              Icons.school,
+                              color: Color(0xFF4F63FE),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Color(0xFF4F63FE), width: 2),
+                              borderSide: BorderSide(
+                                color: Color(0xFF4F63FE),
+                                width: 2,
+                              ),
                             ),
                           ),
                           validator: (value) {
@@ -374,23 +401,30 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                             return null;
                           },
                         ),
-                        
+
                         SizedBox(height: 16),
-                        
+
                         // Description Field
                         TextFormField(
                           controller: _descriptionController,
                           maxLines: 3,
                           decoration: InputDecoration(
                             labelText: 'Description (Optional)',
-                            hintText: 'Add any additional details about the assignment...',
-                            prefixIcon: Icon(Icons.description, color: Color(0xFF4F63FE)),
+                            hintText:
+                                'Add any additional details about the assignment...',
+                            prefixIcon: Icon(
+                              Icons.description,
+                              color: Color(0xFF4F63FE),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Color(0xFF4F63FE), width: 2),
+                              borderSide: BorderSide(
+                                color: Color(0xFF4F63FE),
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -398,13 +432,15 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: 16),
 
                 // Due Date Card
                 Card(
                   elevation: 6,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
@@ -419,7 +455,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        
+
                         InkWell(
                           onTap: _selectDateTime,
                           child: Container(
@@ -432,11 +468,15 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.calendar_today, color: Color(0xFF4F63FE)),
+                                Icon(
+                                  Icons.calendar_today,
+                                  color: Color(0xFF4F63FE),
+                                ),
                                 SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Due Date & Time',
@@ -464,13 +504,15 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: 16),
 
                 // Priority & Status Card
                 Card(
                   elevation: 6,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
@@ -485,7 +527,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        
+
                         // Priority Selection
                         Text(
                           'Priority Level',
@@ -496,56 +538,80 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                           ),
                         ),
                         SizedBox(height: 8),
-                        
+
                         Row(
-                          children: ['low', 'medium', 'high'].map((priority) {
-                            final isSelected = _priority == priority;
-                            final color = _getPriorityColor(priority);
-                            
-                            return Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 4),
-                                child: InkWell(
-                                  onTap: () => setState(() => _priority = priority),
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? color.withOpacity(0.1) : Colors.grey[100],
-                                      border: Border.all(
-                                        color: isSelected ? color : Colors.grey[300]!,
-                                        width: isSelected ? 2 : 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
+                          children:
+                              ['low', 'medium', 'high'].map((priority) {
+                                final isSelected = _priority == priority;
+                                final color = _getPriorityColor(priority);
+
+                                return Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 4,
                                     ),
-                                    child: Column(
-                                      children: [
-                                        Icon(
-                                          priority == 'high' ? Icons.arrow_upward :
-                                          priority == 'medium' ? Icons.remove :
-                                          Icons.arrow_downward,
-                                          color: isSelected ? color : Colors.grey[600],
-                                          size: 20,
+                                    child: InkWell(
+                                      onTap:
+                                          () => setState(
+                                            () => _priority = priority,
+                                          ),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: 12,
                                         ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          priority.toUpperCase(),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            color: isSelected ? color : Colors.grey[600],
+                                        decoration: BoxDecoration(
+                                          color:
+                                              isSelected
+                                                  ? color.withOpacity(0.1)
+                                                  : Colors.grey[100],
+                                          border: Border.all(
+                                            color:
+                                                isSelected
+                                                    ? color
+                                                    : Colors.grey[300]!,
+                                            width: isSelected ? 2 : 1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
                                           ),
                                         ),
-                                      ],
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                              priority == 'high'
+                                                  ? Icons.arrow_upward
+                                                  : priority == 'medium'
+                                                  ? Icons.remove
+                                                  : Icons.arrow_downward,
+                                              color:
+                                                  isSelected
+                                                      ? color
+                                                      : Colors.grey[600],
+                                              size: 20,
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              priority.toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    isSelected
+                                                        ? color
+                                                        : Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                                );
+                              }).toList(),
                         ),
-                        
+
                         SizedBox(height: 20),
-                        
+
                         // Status Dropdown
                         Text(
                           'Status',
@@ -556,7 +622,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                           ),
                         ),
                         SizedBox(height: 8),
-                        
+
                         DropdownButtonFormField<String>(
                           value: _status,
                           decoration: InputDecoration(
@@ -565,10 +631,19 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Color(0xFF4F63FE), width: 2),
+                              borderSide: BorderSide(
+                                color: Color(0xFF4F63FE),
+                                width: 2,
+                              ),
                             ),
-                            prefixIcon: Icon(Icons.flag, color: Color(0xFF4F63FE)),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            prefixIcon: Icon(
+                              Icons.flag,
+                              color: Color(0xFF4F63FE),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
                           ),
                           items: [
                             DropdownMenuItem(
@@ -631,7 +706,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: 24),
 
                 // Action Buttons
@@ -641,13 +716,17 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: _isLoading ? null : _deleteAssignment,
-                          icon: _isLoading 
-                              ? SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : Icon(Icons.delete),
+                          icon:
+                              _isLoading
+                                  ? SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  : Icon(Icons.delete),
                           label: Text('Delete'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
@@ -661,21 +740,28 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                       ),
                       SizedBox(width: 12),
                     ],
-                    
+
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
                         onPressed: _isLoading ? null : _saveAssignment,
-                        icon: _isLoading 
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : Icon(isEditing ? Icons.update : Icons.add),
+                        icon:
+                            _isLoading
+                                ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : Icon(isEditing ? Icons.update : Icons.add),
                         label: Text(
                           isEditing ? 'Update Assignment' : 'Add Assignment',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFF4F63FE),
@@ -689,7 +775,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                     ),
                   ],
                 ),
-                
+
                 if (!isEditing) ...[
                   SizedBox(height: 12),
                   SizedBox(
@@ -704,7 +790,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
                     ),
                   ),
                 ],
-                
+
                 SizedBox(height: 32), // Extra space at bottom
               ],
             ),
@@ -733,7 +819,7 @@ class Assignment {
   final String description;
   final DateTime dueDate;
   final String priority; // 'low', 'medium', 'high'
-  final String status;   // 'pending', 'in-progress', 'completed'
+  final String status; // 'pending', 'in-progress', 'completed'
   final String userId;
 
   Assignment({
@@ -750,7 +836,7 @@ class Assignment {
   // Create Assignment from Firestore document
   factory Assignment.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    
+
     return Assignment(
       id: doc.id,
       title: data['title'] ?? '',

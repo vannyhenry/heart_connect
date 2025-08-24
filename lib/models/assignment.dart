@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Assignment {
+class AssignmentModal {
   final String? id;
   final String title;
   final String subject;
@@ -10,7 +10,7 @@ class Assignment {
   final String status;
   final String userId;
 
-  Assignment({
+  AssignmentModal({
     this.id,
     required this.title,
     required this.subject,
@@ -21,11 +21,11 @@ class Assignment {
     required this.userId,
   });
 
-  // Only method you need - convert Firestore doc to Assignment
-  factory Assignment.fromFirestore(DocumentSnapshot doc) {
+  // Convert Firestore document to Assignment
+  factory AssignmentModal.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    
-    return Assignment(
+
+    return AssignmentModal(
       id: doc.id,
       title: data['title'] ?? '',
       subject: data['subject'] ?? '',
@@ -35,5 +35,18 @@ class Assignment {
       status: data['status'] ?? 'pending',
       userId: data['userId'] ?? '',
     );
+  }
+
+  // Convert Assignment object to Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'subject': subject,
+      'description': description,
+      'dueDate': Timestamp.fromDate(dueDate),
+      'priority': priority,
+      'status': status,
+      'userId': userId,
+    };
   }
 }

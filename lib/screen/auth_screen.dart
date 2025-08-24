@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:heart_connect_app/database/firebase/user_service.dart';
-import 'package:heart_connect_app/screen/add_assignment_screen.dart';
+import 'package:heart_connect_app/screen/display_assignments.dart';
 import 'package:heart_connect_app/widgets/misc.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -41,7 +41,7 @@ class _AuthScreenState extends State<AuthScreen> {
         if (check) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AddAssignmentScreen()),
+            MaterialPageRoute(builder: (context) => AssignmentListScreen()),
           );
         }
       } else {
@@ -53,11 +53,11 @@ class _AuthScreenState extends State<AuthScreen> {
         if (check) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AddAssignmentScreen()),
+            MaterialPageRoute(builder: (context) => AssignmentListScreen()),
           );
         }
       }
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       // Handle Firebase authentication errors
       displaySnackBar(context, "An error occured");
     } finally {
