@@ -24,6 +24,8 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
   bool _isLoading = false;
   bool get isEditing => widget.assignment != null;
 
+  String uid = FirebaseAuth.instance.currentUser!.uid;
+
   @override
   void initState() {
     super.initState();
@@ -63,7 +65,7 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
 
         if (isEditing) {
           // UPDATE existing assignment
-          await FirebaseFirestore.instance
+          await FirebaseFirestore.instance.collection("users").doc(uid)
               .collection('assignments')
               .doc(widget.assignment!.id)
               .update(assignmentData);
@@ -73,7 +75,9 @@ class _AddAssignmentScreenState extends State<AddAssignmentScreen> {
           // CREATE new assignment
           assignmentData['createdAt'] = FieldValue.serverTimestamp();
           await FirebaseFirestore.instance
-              .collection('assignments')
+              .collection('users')
+              .doc(uid)
+              .collection("assignments")
               .add(assignmentData);
 
           _showSnackBar('Assignment added successfully!', Colors.green);

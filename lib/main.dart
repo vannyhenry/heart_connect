@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Heart Connect',
-      initialRoute: AppRouter.auth,
+      initialRoute: AppRouter.authwrapper,
       routes: AppRouter.routes,
     );
   }

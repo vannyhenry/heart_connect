@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:heart_connect_app/database/firebase/user_service.dart';
-import 'package:heart_connect_app/screen/display_assignments.dart';
+import 'package:heart_connect_app/screen/auth/auth_gate.dart';
+import 'package:heart_connect_app/screen/display_assignment/display_assignments.dart';
 import 'package:heart_connect_app/widgets/misc.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -23,6 +24,18 @@ class _AuthScreenState extends State<AuthScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (FirebaseAuth.instance.authStateChanges() == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => AuthGate()),
+      );
+    }
   }
 
   /// Handles the submission of the authentication form (login or registration).
@@ -53,7 +66,7 @@ class _AuthScreenState extends State<AuthScreen> {
         if (check) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AssignmentListScreen()),
+            MaterialPageRoute(builder: (context) => AssignmentListScreen())
           );
         }
       }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:heart_connect_app/database/firebase/assignment_service.dart';
-import 'package:heart_connect_app/screen/add_assignment_screen.dart';
-import 'package:heart_connect_app/screen/assignment_screen.dart';
+import 'package:heart_connect_app/screen/add_assignment/add_assignment_screen.dart';
+import 'package:heart_connect_app/widgets/assignment_card.dart';
 
 class AssignmentListScreen extends StatefulWidget {
   const AssignmentListScreen({super.key});
@@ -18,9 +18,11 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      appBar: AppBar(title: Text('Assignments')),
+      appBar: AppBar(
+        title: Text('Assignments'),
+        automaticallyImplyLeading: false,
+      ),
       body: RefreshIndicator(
         onRefresh: refresh,
         child: StreamBuilder(
@@ -45,11 +47,16 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
                   onEdit: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => AddAssignmentScreen(assignment: assignmentDetails,)),
+                      MaterialPageRoute(
+                        builder:
+                            (_) => AddAssignmentScreen(
+                              assignment: assignmentDetails,
+                            ),
+                      ),
                     );
                   },
                   onDelete: () async {
-                    final confirm = await showDialog<bool>(
+                    showDialog(
                       context: context,
                       builder:
                           (_) => AlertDialog(
@@ -59,22 +66,30 @@ class _AssignmentListScreenState extends State<AssignmentListScreen> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
                                 child: Text('Cancel'),
                               ),
                               ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  Navigator.of(context).pop();
+
+                                  // Then perform delete if widget is still mounted
+                                  if (mounted) {
+                                    await FirebaseFirestore.instance
+                                        .collection("users")
+                                        .doc(uid)
+                                        .collection('assignments')
+                                        .doc(assignmentDetails.id)
+                                        .delete();
+                                  }
+                                },
                                 child: Text('Delete'),
                               ),
                             ],
                           ),
                     );
-                    if (confirm == true) {
-                      await FirebaseFirestore.instance
-                          .collection('assignments')
-                          .doc(assignmentDetails.id)
-                          .delete();
-                    }
                   },
                 );
               },
